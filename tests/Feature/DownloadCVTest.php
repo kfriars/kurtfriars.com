@@ -28,7 +28,7 @@ class DownloadCVTest extends TestCase
         }
 
         $response = $this->get('cv/test-recaptcha-token');
-        dd($response->exception);
+
         $response->assertStatus(200);
     }
 }
