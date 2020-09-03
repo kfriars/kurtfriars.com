@@ -24,7 +24,7 @@ class DownloadCVTest extends TestCase
             $pdf->loadHTML('<h1>Test Resume</h1>')
                 ->setPaper('a4')
                 ->setWarnings(true)
-                ->save(storage_path("private/'Kurt Friars - Resume.pdf'"));
+                ->save(storage_path("private/Kurt Friars - Resume.pdf"));
         }
 
         $response = $this->get('cv/test-recaptcha-token');
