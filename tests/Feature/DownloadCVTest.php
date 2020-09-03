@@ -18,9 +18,12 @@ class DownloadCVTest extends TestCase
 
         // Handle CI where the file won't exist
         if (! $filesystem->exists('private/Kurt Friars - Resume.pdf')) {
-            $this->app->make(PDF::class)->loadHTML('<h1>Test Resume</h1>')
+            /** @var PDF */
+            $pdf = $this->app->make(PDF::class);
+            
+            $pdf->loadHTML('<h1>Test Resume</h1>')
                 ->setPaper('a4')
-                ->setWarnings(false)
+                ->setWarnings(true)
                 ->save(storage_path("private/'Kurt Friars - Resume.pdf'"));
         }
 
