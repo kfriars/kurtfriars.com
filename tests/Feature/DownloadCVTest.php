@@ -13,7 +13,8 @@ class DownloadCVTest extends TestCase
     public function it_downloads_the_cv_using_a_valid_recaptcha_token()
     {
         /** @var Filesystem */
-        $filesystem = $this->app->make(FilesystemManager::class)->createLocalDriver([ 'root' => storage_path() ]);
+        $filesystem = $this->app->make(FilesystemManager::class)
+                                ->createLocalDriver([ 'root' => storage_path() ]);
 
         // Handle CI where the file won't exist
         if (! $filesystem->exists('private/Kurt Friars - Resume.pdf')) {
@@ -24,6 +25,7 @@ class DownloadCVTest extends TestCase
         }
 
         $response = $this->get('cv/test-recaptcha-token');
+        dd($response->exception);
         $response->assertStatus(200);
     }
 }
