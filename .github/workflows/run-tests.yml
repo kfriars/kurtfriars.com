@@ -1,0 +1,140 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    services:
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+          - 8025:8025
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        php: [7.4]
+        laravel: [7.*]
+        dependency-version: [prefer-stable]
+
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Create Database
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -uroot -proot -e 'CREATE DATABASE IF NOT EXISTS kurtfriars'
+
+      - name: Migrate Database
+        run: php artisan migrate:fresh --seed
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_DATABASE: kurtfriars
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_USERNAME: root
+          DB_PASSWORD: root
+
+      - name: Execute Tests
+        run: composer test
+        env:
+          APP_KEY: base64:y+Z3w3Dim/N7/lSl+FqPH6uZ43I+trx8BrAFgwooxcI=
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_PASSWORD: root
+          MAIL_MAILER: smtp
+          MAIL_HOST: 127.0.0.1
+          MAIL_PORT: 1025
+          MAIL_ENCRYPTION: 'null'
+          MAILHOG_URL: 127.0.0.1:8025
+
+  coverage:
+    needs: [ test ]
+    name: coverage
+    runs-on: ubuntu-latest
+    services:
+      mailhog:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+          - 8025:8025
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        php: [7.4]
+        laravel: [7.*]
+        dependency-version: [prefer-stable]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Create Database
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -uroot -proot -e 'CREATE DATABASE IF NOT EXISTS kurtfriars'
+
+      - name: Migrate Database
+        run: php artisan migrate:fresh --seed
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_DATABASE: kurtfriars
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_USERNAME: root
+          DB_PASSWORD: root
+
+      - name: Tests with Code Climate Coverage
+        uses: paambaati/codeclimate-action@v2.6.0
+        env:
+          APP_KEY: base64:y+Z3w3Dim/N7/lSl+FqPH6uZ43I+trx8BrAFgwooxcI=
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_PASSWORD: root
+          MAILHOG_URL: 127.0.0.1:8025
+          MAIL_MAILER: smtp
+          MAIL_HOST: 127.0.0.1
+          MAIL_PORT: 1025
+          MAIL_ENCRYPTION: 'null'
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        with:
+          coverageCommand: composer test-coverage
+          coverageLocations: |
+            ${{github.workspace}}/build/logs/clover.xml:clover

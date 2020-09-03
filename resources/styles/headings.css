@@ -1,0 +1,101 @@
+h1.text-responsive {
+    @apply text-4xl leading-10;
+}
+
+h2.text-responsive {
+    @apply text-3xl leading-9;
+}
+
+h3.text-responsive {
+    @apply text-2xl leading-8;
+}
+
+h4.text-responsive {
+    @apply text-xl leading-7;
+}
+
+h5.text-responsive {
+    @apply text-xl leading-6;
+}
+
+h6.text-responsive {
+    @apply text-xl leading-6;
+}
+
+@media (min-width: theme('screens.sm')) {
+    h1.text-responsive {
+        @apply leading-tight text-5xl;
+    }
+
+    h2.text-responsive {
+        @apply leading-tight text-4xl;
+    }
+
+    h3.text-responsive {
+        @apply leading-tight text-3xl;
+    }
+
+    h4.text-responsive {
+        @apply leading-tight text-2xl;
+    }
+
+    h5.text-responsive {
+        @apply leading-tight text-xl;
+    }
+
+    h6.text-responsive {
+        @apply leading-tight text-lg;
+    }
+}
+
+@media (min-width: theme('screens.md')) {
+    h1.text-responsive {
+        @apply leading-snug;
+    }
+
+    h2.text-responsive {
+        @apply leading-snug;
+    }
+
+    h4.text-responsive {
+        @apply leading-snug;
+    }
+
+    h4.text-responsive {
+        @apply leading-snug;
+    }
+
+    h5.text-responsive {
+        @apply leading-6;
+    }
+
+    h6.text-responsive {
+        @apply leading-6;
+    }
+}
+
+@media (min-width: theme('screens.lg')) {
+    h1.text-responsive {
+        @apply leading-normal text-6xl;
+    }
+
+    h2.text-responsive {
+        @apply leading-normal text-5xl;
+    }
+
+    h4.text-responsive {
+        @apply leading-normal text-4xl;
+    }
+
+    h4.text-responsive {
+        @apply leading-normal text-3xl;
+    }
+
+    h5.text-responsive {
+        @apply leading-6 text-2xl;
+    }
+
+    h6.text-responsive {
+        @apply leading-6 text-xl;
+    }
+}

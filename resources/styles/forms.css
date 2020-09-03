@@ -1,0 +1,13 @@
+.tl-checkbox input:checked + svg {
+    display: block !important;
+}
+
+.tl-checkbox > div {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+.tl-checkbox svg {
+    margin-left: 1px;
+    margin-top: 2px;
+}

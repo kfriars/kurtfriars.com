@@ -1,0 +1,61 @@
+version: "3.0"
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - "3310:3306"
+    volumes:
+      - "./docker/.data/db/mysql:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./docker/.data/cache/redis:/data"
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    volumes:
+      - "./docker/.data/mail/mailhog:/data/mailhog"
+  php:
+    image: "$BACKEND_IMAGE"
+    container_name: php
+    build:
+      context: './'
+      dockerfile: 'docker/php/Dockerfile'
+    volumes:
+      - ./:/app
+    depends_on:
+      - mysql
+      - redis
+      - mailhog
+  nginx:
+    image: "$FRONTEND_IMAGE"
+    container_name: nginx
+    #env_file: ./docker/nginx/.env
+    build:
+      context: './'
+      dockerfile: 'docker/nginx/Dockerfile.local'
+    ports:
+      - 80:80
+    volumes:
+      - ./public:/app/public
+      - ./storage/app/public:/app/public/storage
+      - ./docker/nginx/config/default.local.conf:/etc/nginx/sites-enabled/default.conf
+      - ./docker/nginx/config/nginx.local.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/config/custom.conf:/etc/nginx/conf.d/custom.conf
+      - ./docker/nginx/config/conf.d/mapping.conf:/etc/nginx/conf.d/mapping.conf
+      - ./docker/nginx/config/conf.d/buffer.conf:/etc/nginx/conf.d/buffer.conf
+      - ./docker/nginx/config/conf.d/timeouts.conf:/etc/nginx/conf.d/timeouts.conf
+    depends_on:
+      - php
