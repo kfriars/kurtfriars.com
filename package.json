@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.14.0",
-        "axios": "^0.19",
+        "axios": "^0.21",
         "cross-env": "^7.0",
         "datatables.net-bs4": "^1.10.21",
         "dayjs": "^1.8.34",
